@@ -9,6 +9,15 @@ import Step4Summary from './pricing-steps/Step4Summary';
 const PricingFormView = ({ viewMode, selectedPricingId }) => {
   const [step, setStep] = useState(1);
   
+  // NEW: Jump to summary step when opening in view mode from approvals
+  React.useEffect(() => {
+    if (viewMode === 'view' && selectedPricingId) {
+      setStep(4); // Jump directly to Summary step
+    } else {
+      setStep(1); // Start from beginning for new pricing
+    }
+  }, [viewMode, selectedPricingId]);
+
   // Step 1: Opportunity & Engagement Details
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +33,10 @@ const PricingFormView = ({ viewMode, selectedPricingId }) => {
   const [expEndDate, setExpEndDate] = useState('');
   const [multiYear, setMultiYear] = useState(false);
   const [bdCost, setBdCost] = useState(0);
+  const [handleAllSolutions, setHandleAllSolutions] = useState(false);
+const [solutionLeads, setSolutionLeads] = useState({});
+const [childRequestsCreated, setChildRequestsCreated] = useState(false);
+const [currentSolution, setCurrentSolution] = useState(null);
   
   // Step 2: Resource Mapping & Overhead
   const [resourceAllocations, setResourceAllocations] = useState([
@@ -182,46 +195,57 @@ const PricingFormView = ({ viewMode, selectedPricingId }) => {
       <StepIndicator />
       
       {step === 1 && (
-        <Step1OpportunitySelection
-          selectedOpportunity={selectedOpportunity}
-          setSelectedOpportunity={setSelectedOpportunity}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          engagementTypes={engagementTypes}
-          setEngagementTypes={setEngagementTypes}
-          salesStream={salesStream}
-          setSalesStream={setSalesStream}
-          deliveryModel={deliveryModel}
-          setDeliveryModel={setDeliveryModel}
-          expStartDate={expStartDate}
-          setExpStartDate={setExpStartDate}
-          expEndDate={expEndDate}
-          setExpEndDate={setExpEndDate}
-          multiYear={multiYear}
-          setMultiYear={setMultiYear}
-          bdCost={bdCost}
-          setBdCost={setBdCost}
-          isReadOnly={isReadOnly}
-          setStep={setStep}
-        />
-      )}
+      <Step1OpportunitySelection
+        selectedOpportunity={selectedOpportunity}
+        setSelectedOpportunity={setSelectedOpportunity}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        engagementTypes={engagementTypes}
+        setEngagementTypes={setEngagementTypes}
+        salesStream={salesStream}
+        setSalesStream={setSalesStream}
+        deliveryModel={deliveryModel}
+        setDeliveryModel={setDeliveryModel}
+        expStartDate={expStartDate}
+        setExpStartDate={setExpStartDate}
+        expEndDate={expEndDate}
+        setExpEndDate={setExpEndDate}
+        multiYear={multiYear}
+        setMultiYear={setMultiYear}
+        bdCost={bdCost}
+        setBdCost={setBdCost}
+        handleAllSolutions={handleAllSolutions}
+        setHandleAllSolutions={setHandleAllSolutions}
+        solutionLeads={solutionLeads}
+        setSolutionLeads={setSolutionLeads}
+        isReadOnly={isReadOnly}
+        setStep={setStep}
+      />
+    )}
       
       {step === 2 && (
-        <Step2ResourceAndOverhead
-          resourceAllocations={resourceAllocations}
-          setResourceAllocations={setResourceAllocations}
-          updateResource={updateResource}
-          discountPercent={discountPercent}
-          setDiscountPercent={setDiscountPercent}
-          overheadExpenses={overheadExpenses}
-          setOverheadExpenses={setOverheadExpenses}
-          totals={totals}
-          isReadOnly={isReadOnly}
-          setStep={setStep}
-          grades={grades}
-          competencies={competencies}
-        />
-      )}
+      <Step2ResourceAndOverhead
+        resourceAllocations={resourceAllocations}
+        setResourceAllocations={setResourceAllocations}
+        updateResource={updateResource}
+        discountPercent={discountPercent}
+        setDiscountPercent={setDiscountPercent}
+        overheadExpenses={overheadExpenses}
+        setOverheadExpenses={setOverheadExpenses}
+        totals={totals}
+        isReadOnly={isReadOnly}
+        setStep={setStep}
+        grades={grades}
+        competencies={competencies}
+        handleAllSolutions={handleAllSolutions}
+        selectedOpportunity={selectedOpportunity}
+        solutionLeads={solutionLeads}
+        currentSolution={currentSolution}
+        setCurrentSolution={setCurrentSolution}
+        childRequestsCreated={childRequestsCreated}
+        setChildRequestsCreated={setChildRequestsCreated}
+      />
+    )}
       
       {step === 3 && (
         <Step3YearWiseComparison
@@ -229,6 +253,13 @@ const PricingFormView = ({ viewMode, selectedPricingId }) => {
           setYearWiseData={setYearWiseData}
           totals={totals}
           setStep={setStep}
+          expStartDate={expStartDate}
+          expEndDate={expEndDate}
+          multiYear={multiYear}
+          resourceAllocations={resourceAllocations}
+          overheadExpenses={overheadExpenses}
+          bdCost={bdCost}
+          discountPercent={discountPercent}
         />
       )}
       

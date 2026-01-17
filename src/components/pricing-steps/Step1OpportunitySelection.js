@@ -21,17 +21,14 @@ const Step1OpportunitySelection = ({
   setMultiYear,
   bdCost,
   setBdCost,
+  handleAllSolutions,
+  setHandleAllSolutions,
+  solutionLeads,
+  setSolutionLeads,
   isReadOnly,
   setStep
 }) => {
   const [showDropdown, setShowDropdown] = React.useState(false);
-  const [solutionLeads, setSolutionLeads] = React.useState({});
-  
-  const filteredOpportunities = opportunities.filter(opp => 
-    opp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    opp.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    opp.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   // Initialize solution leads when opportunity is selected
   React.useEffect(() => {
@@ -44,13 +41,24 @@ const Step1OpportunitySelection = ({
     }
   }, [selectedOpportunity]);
 
+  const filteredOpportunities = opportunities.filter(opp => 
+    opp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    opp.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    opp.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Validate if can proceed
+  const allSolutionLeadsFilled = selectedOpportunity?.solutions 
+    ? selectedOpportunity.solutions.every(sol => solutionLeads[sol.name]?.trim())
+    : true;
+
   const canProceed = selectedOpportunity && 
     (engagementTypes.tm || engagementTypes.fixed || engagementTypes.success || engagementTypes.milestone) &&
     salesStream && 
     deliveryModel && 
     expStartDate && 
-    expEndDate;
+    expEndDate &&
+    (handleAllSolutions || allSolutionLeadsFilled); // New validation logic
 
   return (
     <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #E8E8F0', padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
@@ -205,10 +213,18 @@ const Step1OpportunitySelection = ({
             {/* Solutions Section */}
             {selectedOpportunity.solutions && selectedOpportunity.solutions.length > 0 && (
               <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #E8E8F0' }}>
-                <h4 style={{ margin: '0 0 16px', fontSize: '14px', fontWeight: '600', color: '#1A1A2E' }}>
-                  Solutions
-                </h4>
-                <div style={{ background: 'white', borderRadius: '10px', border: '1px solid #E8E8F0', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#1A1A2E' }}>
+                    Solutions & Ownership
+                  </h4>
+                  {selectedOpportunity.solutions.length > 1 && (
+                    <div style={{ fontSize: '12px', color: '#6B6B8D' }}>
+                      {selectedOpportunity.solutions.length} solutions identified
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ background: 'white', borderRadius: '10px', border: '1px solid #E8E8F0', overflow: 'hidden', marginBottom: '16px' }}>
                   <div style={{ 
                     display: 'grid', 
                     gridTemplateColumns: '40px 2fr 1fr 2fr', 
@@ -223,7 +239,7 @@ const Step1OpportunitySelection = ({
                     <div>#</div>
                     <div>Solution</div>
                     <div>Type</div>
-                    <div>Solution Lead *</div>
+                    <div>Solution Lead {!handleAllSolutions && '*'}</div>
                   </div>
                   {selectedOpportunity.solutions.map((sol, index) => (
                     <div 
@@ -256,23 +272,97 @@ const Step1OpportunitySelection = ({
                       <div>
                         <input 
                           type="text" 
-                          placeholder="Enter solution lead name"
+                          placeholder={handleAllSolutions ? "Optional" : "Enter solution lead name"}
                           value={solutionLeads[sol.name] || ''}
                           onChange={(e) => setSolutionLeads({...solutionLeads, [sol.name]: e.target.value})}
-                          disabled={isReadOnly}
+                          disabled={isReadOnly || handleAllSolutions}
                           style={{ 
                             width: '100%', 
                             padding: '10px 12px', 
                             border: '1px solid #E8E8F0', 
                             borderRadius: '8px', 
                             fontSize: '13px',
-                            outline: 'none'
+                            outline: 'none',
+                            background: handleAllSolutions ? '#F5F5F9' : 'white',
+                            cursor: handleAllSolutions ? 'not-allowed' : 'text'
                           }}
                         />
                       </div>
                     </div>
                   ))}
                 </div>
+
+                {/* Pricing Approach Selection */}
+                {selectedOpportunity.solutions.length > 1 && (
+                  <div style={{ 
+                    padding: '16px', 
+                    background: handleAllSolutions ? '#4A154B08' : '#00A3E008', 
+                    borderRadius: '10px', 
+                    border: `2px solid ${handleAllSolutions ? '#4A154B25' : '#00A3E025'}`,
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      gap: '12px', 
+                      cursor: isReadOnly ? 'not-allowed' : 'pointer' 
+                    }}>
+                      <input 
+                        type="checkbox" 
+                        checked={handleAllSolutions}
+                        onChange={(e) => !isReadOnly && setHandleAllSolutions(e.target.checked)}
+                        disabled={isReadOnly}
+                        style={{ 
+                          width: '20px', 
+                          height: '20px', 
+                          accentColor: '#4A154B', 
+                          cursor: isReadOnly ? 'not-allowed' : 'pointer',
+                          marginTop: '2px'
+                        }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A2E', marginBottom: '4px' }}>
+                          I will handle pricing for all solutions
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#6B6B8D', lineHeight: '1.5' }}>
+                          {handleAllSolutions ? (
+                            <>
+                              <strong style={{ color: '#4A154B' }}>Consolidated Pricing Mode:</strong> You will complete resource mapping and pricing for all solutions in the next steps. Solution leads are optional for reference only.
+                            </>
+                          ) : (
+                            <>
+                              <strong style={{ color: '#00A3E0' }}>Distributed Pricing Mode:</strong> Child pricing requests will be created for secondary solution owners after you complete pricing for the primary solution. Each solution lead will receive a notification to complete their portion independently.
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </label>
+
+                    {!handleAllSolutions && !allSolutionLeadsFilled && (
+                      <div style={{ 
+                        marginTop: '12px', 
+                        padding: '10px 12px', 
+                        background: '#F5A62315', 
+                        border: '1px solid #F5A62350',
+                        borderRadius: '6px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        fontSize: '12px',
+                        color: '#F5A623'
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                          <line x1="12" y1="9" x2="12" y2="13"/>
+                          <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <span>
+                          <strong>Action Required:</strong> Please assign a solution lead for each secondary solution to proceed with distributed pricing.
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

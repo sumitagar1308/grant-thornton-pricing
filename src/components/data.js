@@ -206,7 +206,36 @@ export const recentPricings = [
     partner: 'John Smith', 
     ratePerHour: '$185', 
     recoveryRate: '165%', 
-    oppStatus: 'In Progress' 
+    oppStatus: 'In Progress',
+    childRequests: [
+      {
+        solutionName: 'Digital Advisory',
+        solutionLead: 'Sarah Johnson',
+        ratePerHour: '$180',
+        recoveryRate: '160%',
+        value: '$450,000',
+        margin: '40%',
+        status: 'Approved'
+      },
+      {
+        solutionName: 'Technology Consulting',
+        solutionLead: 'Michael Chen',
+        ratePerHour: '$190',
+        recoveryRate: '170%',
+        value: '$300,000',
+        margin: '44%',
+        status: 'Pending'
+      },
+      {
+        solutionName: 'Process Automation',
+        solutionLead: 'David Lee',
+        ratePerHour: '$185',
+        recoveryRate: '165%',
+        value: '$100,000',
+        margin: '42%',
+        status: 'In Review'
+      }
+    ]
   },
   { 
     id: 'PR-2024-044', 
@@ -218,7 +247,8 @@ export const recentPricings = [
     partner: 'Michael Chen', 
     ratePerHour: '$165', 
     recoveryRate: '140%', 
-    oppStatus: 'Pending' 
+    oppStatus: 'Pending'
+    // No child requests - single solution
   },
   { 
     id: 'PR-2024-043', 
@@ -230,13 +260,60 @@ export const recentPricings = [
     partner: 'Sarah Johnson', 
     ratePerHour: '$220', 
     recoveryRate: '195%', 
-    oppStatus: 'Approved' 
+    oppStatus: 'Approved',
+    childRequests: [
+      {
+        solutionName: 'Financial Audit',
+        solutionLead: 'Emily Brown',
+        ratePerHour: '$220',
+        recoveryRate: '195%',
+        value: '$800,000',
+        margin: '46%',
+        status: 'In Review'
+      },
+      {
+        solutionName: 'Compliance Review',
+        solutionLead: 'John Doe',
+        ratePerHour: '$210',
+        recoveryRate: '190%',
+        value: '$400,000',
+        margin: '43%',
+        status: 'In Review'
+      }
+    ]
   },
 ];
 
 // Pending approvals
 export const pendingApprovals = [
-  { id: 'PR-2024-044', client: 'TechStart Inc', margin: '38%', submitter: 'Sarah M.' },
-  { id: 'PR-2024-042', client: 'InnovateTech', margin: '35%', submitter: 'Mike R.' },
-  { id: 'PR-2024-041', client: 'DataFlow Ltd', margin: '40%', submitter: 'John D.' },
+  { 
+    id: 'PR-2024-044', 
+    client: 'TechStart Inc', 
+    margin: '38%', 
+    submitter: 'Sarah M.',
+    value: 450000,
+    netProfit: 171000,
+    recoveryRate: '140%',
+    ratePerHour: 165
+  },
+  { 
+    id: 'PR-2024-042', 
+    client: 'InnovateTech', 
+    margin: '35%', 
+    submitter: 'Mike R.',
+    value: 680000,
+    netProfit: 238000,
+    recoveryRate: '155%',
+    ratePerHour: 175
+  },
+  { 
+    id: 'PR-2024-041', 
+    client: 'DataFlow Ltd', 
+    margin: '40%', 
+    submitter: 'John D.',
+    value: 920000,
+    netProfit: 368000,
+    recoveryRate: '180%',
+    ratePerHour: 195
+  },
 ];
