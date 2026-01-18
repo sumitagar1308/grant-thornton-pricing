@@ -107,6 +107,34 @@ const DashboardView = ({ setActiveView, setSelectedPricingId, setViewMode }) => 
               <button onClick={() => { setViewMode('new'); setActiveView('pricing'); }} style={{ padding: '8px 16px', background: 'linear-gradient(135deg, #4A154B 0%, #6B2D6C 100%)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(74, 21, 75, 0.25)', transition: 'all 0.2s' }}>
                 <Icons.Plus />New Pricing
               </button>
+              {/* Temporary Test Section - Remove in production */}
+              <div style={{ 
+                marginBottom: '24px', 
+                padding: '16px', 
+                background: '#F5A62315', 
+                borderRadius: '12px',
+                border: '1px solid #F5A62350'
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: '#F5A623', marginBottom: '8px' }}>
+                  🧪 Testing Tools (Remove in Production)
+                </div>
+                <button 
+                  onClick={() => setActiveView('child-request')}
+                  style={{ 
+                    padding: '10px 20px', 
+                    background: '#00A3E0', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '8px', 
+                    fontSize: '13px', 
+                    fontWeight: '600', 
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 163, 224, 0.25)'
+                  }}
+                >
+                  📧 Simulate Child Request Notification (Secondary Owner View)
+                </button>
+              </div>
             </div>
           </div>
           <div style={{ overflowX: 'auto' }}>

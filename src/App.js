@@ -6,6 +6,7 @@ import PricingFormView from './components/PricingFormView';
 import ApprovalsView from './components/ApprovalsView';
 import MastersView from './components/MastersView';
 import ConsolidationDashboard from './components/ConsolidationDashboard';
+import ChildRequestView from './components/ChildRequestView';
 
 
 function App() {
@@ -123,6 +124,42 @@ function App() {
           }}
           setActiveView={setActiveView}
         />
+      )}
+
+      {activeView === 'child-request' && (
+        <>
+          <Header 
+            title="Child Pricing Request" 
+            subtitle="Complete pricing for your assigned solution" 
+          />
+          <ChildRequestView 
+            childRequestId="PR-2024-045.001"
+            parentRequestId="PR-2024-045"
+            opportunityDetails={{
+              name: 'Digital Transformation Initiative',
+              client: 'Acme Corp'
+            }}
+            solutionName="Technology Consulting"
+            solutionType="Secondary"
+            primaryOwner="Sarah Johnson"
+            engagementContext={{
+              duration: 'Mar 2024 - Sep 2024 (7 months)',
+              deliveryModel: 'Hybrid',
+              discount: 10,
+              billRateEscalation: 5,
+              costRateEscalation: 5
+            }}
+            messageFromPrimary="Michael, please price the technology consulting workstream. Focus on cloud migration and API integration components. Target margin should be around 40-45%."
+            onSubmit={(data) => {
+              console.log('Child request submitted:', data);
+              // Update child requests state
+            }}
+            onSaveDraft={(data) => {
+              console.log('Draft saved:', data);
+            }}
+            setActiveView={setActiveView}
+          />
+        </>
       )}
       </div>
     </div>
