@@ -32,14 +32,14 @@ const Step1OpportunitySelection = ({
 
   // Initialize solution leads when opportunity is selected
   React.useEffect(() => {
-    if (selectedOpportunity && selectedOpportunity.solutions) {
-      const leads = {};
-      selectedOpportunity.solutions.forEach(sol => {
-        leads[sol.name] = sol.lead || '';
-      });
-      setSolutionLeads(leads);
-    }
-  }, [selectedOpportunity]);
+      if (selectedOpportunity && selectedOpportunity.solutions) {
+        const leads = {};
+        selectedOpportunity.solutions.forEach(sol => {
+          leads[sol.name] = sol.lead || '';
+        });
+        setSolutionLeads(leads);
+      }
+    }, [selectedOpportunity, setSolutionLeads]);
 
   const filteredOpportunities = opportunities.filter(opp => 
     opp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

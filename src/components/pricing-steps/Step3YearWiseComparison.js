@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Icons } from '../Icons';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const Step3YearWiseComparison = ({
   yearWiseData,
@@ -16,19 +15,12 @@ const Step3YearWiseComparison = ({
 }) => {
   const [billRateEscalation, setBillRateEscalation] = useState(0);
   const [costRateEscalation, setCostRateEscalation] = useState(0);
-  const [customBillRates, setCustomBillRates] = useState({});
-  const [customCostRates, setCustomCostRates] = useState({});
+  const [customBillRates] = useState({});
+  const [customCostRates] = useState({});
   const [yearlyBreakdown, setYearlyBreakdown] = useState([]);
 
-  // Calculate financial years breakdown
-  useEffect(() => {
-    if (expStartDate && expEndDate) {
-      const breakdown = calculateYearlyBreakdown();
-      setYearlyBreakdown(breakdown);
-    }
-  }, [expStartDate, expEndDate, billRateEscalation, costRateEscalation, customBillRates, customCostRates, resourceAllocations, overheadExpenses, bdCost, discountPercent]);
-
-  const calculateYearlyBreakdown = () => {
+  // Calculate financial years breakdown - wrapped in useCallback to prevent infinite loop
+  const calculateYearlyBreakdown = useCallback(() => {
     if (!expStartDate || !expEndDate) return [];
 
     const start = new Date(expStartDate);
@@ -58,9 +50,12 @@ const Step3YearWiseComparison = ({
         const months = Math.round((periodEnd - periodStart) / (1000 * 60 * 60 * 24 * 30.44));
         const fyLabel = `FY ${currentFYStart.getFullYear()}-${(currentFYStart.getFullYear() + 1).toString().slice(-2)}`;
 
+        // Capture yearIndex in a closure-safe way
+        const currentYearIndex = yearIndex;
+        
         // Calculate escalation multiplier
-        const billEscalationMultiplier = 1 + (billRateEscalation / 100) * yearIndex;
-        const costEscalationMultiplier = 1 + (costRateEscalation / 100) * yearIndex;
+        const billEscalationMultiplier = 1 + (billRateEscalation / 100) * currentYearIndex;
+        const costEscalationMultiplier = 1 + (costRateEscalation / 100) * currentYearIndex;
 
         // Calculate revenue and cost for this year
         let yearRevenue = 0;
@@ -72,8 +67,8 @@ const Step3YearWiseComparison = ({
           const effectiveHours = hoursPerMonth * effectiveMonths * (r.utilization / 100);
           
           // Check if custom rates exist for this year
-          const customBillKey = `${r.id}-${yearIndex}`;
-          const customCostKey = `${r.id}-${yearIndex}`;
+          const customBillKey = `${r.id}-${currentYearIndex}`;
+          const customCostKey = `${r.id}-${currentYearIndex}`;
           
           const billRate = customBillRates[customBillKey] !== undefined 
             ? customBillRates[customBillKey] 
@@ -96,14 +91,14 @@ const Step3YearWiseComparison = ({
         yearCost += overheadForYear;
 
         // Add BD Cost (only in first year)
-        const bdCostForYear = yearIndex === 0 ? bdCost : 0;
+        const bdCostForYear = currentYearIndex === 0 ? bdCost : 0;
 
         const netRevenue = discountedRevenue + billableOverheadForYear - bdCostForYear;
         const netProfit = netRevenue - yearCost;
         const margin = netRevenue > 0 ? (netProfit / netRevenue) * 100 : 0;
 
         years.push({
-          year: yearIndex + 1,
+          year: currentYearIndex + 1,
           fyLabel,
           periodStart: periodStart.toISOString().split('T')[0],
           periodEnd: periodEnd.toISOString().split('T')[0],
@@ -127,21 +122,14 @@ const Step3YearWiseComparison = ({
     }
 
     return years;
-  };
+  }, [expStartDate, expEndDate, billRateEscalation, costRateEscalation, customBillRates, customCostRates, resourceAllocations, overheadExpenses, bdCost, discountPercent]);
 
-  const handleCustomBillRate = (resourceId, yearIndex, value) => {
-    setCustomBillRates(prev => ({
-      ...prev,
-      [`${resourceId}-${yearIndex}`]: Number(value)
-    }));
-  };
-
-  const handleCustomCostRate = (resourceId, yearIndex, value) => {
-    setCustomCostRates(prev => ({
-      ...prev,
-      [`${resourceId}-${yearIndex}`]: Number(value)
-    }));
-  };
+  useEffect(() => {
+    if (expStartDate && expEndDate) {
+      const breakdown = calculateYearlyBreakdown();
+      setYearlyBreakdown(breakdown);
+    }
+  }, [expStartDate, expEndDate, calculateYearlyBreakdown]);
 
   const totalSummary = yearlyBreakdown.reduce((acc, year) => ({
     grossRevenue: acc.grossRevenue + year.grossRevenue,
@@ -369,7 +357,7 @@ const Step3YearWiseComparison = ({
           </div>
 
           {/* Summary Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '16px' }}>
             <div style={{ padding: '16px', background: 'linear-gradient(135deg, #4A154B15 0%, #6B2D6C15 100%)', borderRadius: '12px', border: '1px solid #4A154B25' }}>
               <div style={{ fontSize: '11px', color: '#6B6B8D', marginBottom: '6px', textTransform: 'uppercase', fontWeight: '600' }}>Total Contract Value</div>
               <div style={{ fontSize: '20px', fontWeight: '700', color: '#4A154B' }}>
@@ -388,6 +376,15 @@ const Step3YearWiseComparison = ({
                 {avgMargin.toFixed(1)}%
               </div>
             </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <div style={{ padding: '16px', background: 'linear-gradient(135deg, #E5007D15 0%, #C4006A15 100%)', borderRadius: '12px', border: '1px solid #E5007D25' }}>
+              <div style={{ fontSize: '11px', color: '#6B6B8D', marginBottom: '6px', textTransform: 'uppercase', fontWeight: '600' }}>Engagement Duration</div>
+              <div style={{ fontSize: '20px', fontWeight: '700', color: '#E5007D' }}>
+                {yearlyBreakdown.length} {yearlyBreakdown.length === 1 ? 'Year' : 'Years'}
+              </div>
+            </div>
             <div style={{ padding: '16px', background: 'linear-gradient(135deg, #F5A62315 0%, #E6941515 100%)', borderRadius: '12px', border: '1px solid #F5A62325' }}>
               <div style={{ fontSize: '11px', color: '#6B6B8D', marginBottom: '6px', textTransform: 'uppercase', fontWeight: '600' }}>Avg Rate/Hour</div>
               <div style={{ fontSize: '20px', fontWeight: '700', color: '#F5A623' }}>
@@ -400,21 +397,15 @@ const Step3YearWiseComparison = ({
                 })()}
               </div>
             </div>
-            <div style={{ padding: '16px', background: 'linear-gradient(135deg, #E5007D15 0%, #C4006A15 100%)', borderRadius: '12px', border: '1px solid #E5007D25' }}>
+            <div style={{ padding: '16px', background: 'linear-gradient(135deg, #6B2D6C15 0%, #4A154B15 100%)', borderRadius: '12px', border: '1px solid #6B2D6C25' }}>
               <div style={{ fontSize: '11px', color: '#6B6B8D', marginBottom: '6px', textTransform: 'uppercase', fontWeight: '600' }}>Recovery %</div>
-              <div style={{ fontSize: '20px', fontWeight: '700', color: '#E5007D' }}>
+              <div style={{ fontSize: '20px', fontWeight: '700', color: '#6B2D6C' }}>
                 {(() => {
                   const recoveryPercent = totalSummary.totalCost > 0 
                     ? (totalSummary.netRevenue / totalSummary.totalCost) * 100 
                     : 0;
                   return recoveryPercent.toFixed(0);
                 })()}%
-              </div>
-            </div>
-            <div style={{ padding: '16px', background: 'linear-gradient(135deg, #6B2D6C15 0%, #4A154B15 100%)', borderRadius: '12px', border: '1px solid #6B2D6C25', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: '#6B6B8D', marginBottom: '8px', textTransform: 'uppercase', fontWeight: '600' }}>Engagement Duration</div>
-              <div style={{ fontSize: '20px', fontWeight: '700', color: '#6B2D6C' }}>
-                {yearlyBreakdown.length} {yearlyBreakdown.length === 1 ? 'Year' : 'Years'}
               </div>
             </div>
           </div>
@@ -433,7 +424,7 @@ const Step3YearWiseComparison = ({
           <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: '600', color: '#1A1A2E' }}>
             No Date Range Configured
           </h3>
-          <p style={{ margin: 0, fontSize: '14px', color: '#6B6B8D', maxWidth: '500px', margin: '0 auto' }}>
+          <p style={{ margin: '0 auto', fontSize: '14px', color: '#6B6B8D', maxWidth: '500px' }}>
             Please go back to Step 1 and configure the Expected Start Date and Expected End Date to see year-wise breakdown.
           </p>
         </div>

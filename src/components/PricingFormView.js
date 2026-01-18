@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { opportunities, grades, competencies, rateMatrix } from '../components/data';
+import { grades, competencies, rateMatrix } from '../components/data';
 import { Icons } from './Icons';
 import Step1OpportunitySelection from './pricing-steps/Step1OpportunitySelection';
 import Step2ResourceAndOverhead from './pricing-steps/Step2ResourceAndOverhead';

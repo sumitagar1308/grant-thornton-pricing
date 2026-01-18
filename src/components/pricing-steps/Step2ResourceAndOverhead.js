@@ -30,10 +30,6 @@ const Step2ResourceAndOverhead = ({
   const primarySolution = solutions.find(s => s.isPrimary);
   const secondarySolutions = solutions.filter(s => !s.isPrimary);
 
-  // Determine which solutions to show
-  const visibleSolutions = handleAllSolutions 
-    ? solutions 
-    : (primarySolution ? [primarySolution] : solutions);
 
   const handleDeleteRow = (id) => {
     if (window.confirm('Are you sure you want to delete this resource?')) {

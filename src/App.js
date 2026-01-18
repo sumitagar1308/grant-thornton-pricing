@@ -110,7 +110,7 @@ function App() {
         {activeView === 'consolidation' && (
         <ConsolidationDashboard 
           parentRequestId={selectedPricingId || "PR-2024-045"}
-          selectedOpportunity={selectedOpportunity }
+          selectedOpportunity={setSelectedOpportunity}
           primarySolution={selectedOpportunity?.solutions?.find(s => s.isPrimary)}
           secondarySolutions={selectedOpportunity?.solutions?.filter(s => !s.isPrimary) || []}
           solutionLeads={{}} // This will come from the pricing form state when integrated
